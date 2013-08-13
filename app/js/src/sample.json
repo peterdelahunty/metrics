@@ -1,0 +1,31 @@
+{"url": {
+    "src": "http://localhost:8000/app/test.html",
+    "https": false,
+    "domain": "localhost",
+    "port": "8000",
+    "path": "/app/test.html",
+    "query": {},
+    "hash": ""
+}, "ref": "Direct", "vid": {
+    "uid": "",
+    "cid": "4CB54272-CCF1-4ED1-8E9B-885C15BEACF1",
+    "sid": "3088E74A-1886-4AF9-83BE-8DD8C97EB15E"
+}, "env": {
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36",
+    "browser": {
+        "name": "Chrome",
+        "version": "28.0.1500.71",
+        "major": "28"
+    },
+    "engine": {
+        "name": "WebKit",
+        "version": "537.36"
+    },
+    "os": {
+        "name": "Mac OS X",
+        "version": "10.8.2"
+    },
+    "device": {},
+    "cpu": {},
+    "screen": "1920x1200"
+}, "data": {}}
