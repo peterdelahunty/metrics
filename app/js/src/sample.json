@@ -1,15 +1,15 @@
 {"url": {
-    "src": "http://localhost:8000/app/test.html",
+    "src": "http://localhost:8000/app/index.html",
     "https": false,
     "domain": "localhost",
     "port": "8000",
-    "path": "/app/test.html",
+    "path": "/app/index.html",
     "query": {},
     "hash": ""
-}, "ref": "Direct", "vid": {
+}, "usr": {
     "uid": "",
-    "cid": "4CB54272-CCF1-4ED1-8E9B-885C15BEACF1",
-    "sid": "3088E74A-1886-4AF9-83BE-8DD8C97EB15E"
+    "cid": "1A9CD2A0-2D49-4151-9D2F-553B8130A7C2",
+    "sid": "CEE79305-1FCA-4896-A624-C8A355CE72A4"
 }, "env": {
     "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36",
     "browser": {
@@ -27,5 +27,6 @@
     },
     "device": {},
     "cpu": {},
-    "screen": "1920x1200"
+    "screen": "1920x1200",
+    "tz": -10
 }, "data": {}}

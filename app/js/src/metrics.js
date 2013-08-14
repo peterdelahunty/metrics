@@ -26,7 +26,7 @@ require(['math','purl','ua-parser','metrics-impl'],function(math,purl,UAParser,m
 
     function getClientExpiry(){
         var expireTime = new Date()
-        expireTime.setMinutes(expireTime.getDate() + 3650);
+        expireTime.setDate(expireTime.getDate() + 3650);
         return expireTime;
     }
 
@@ -39,14 +39,13 @@ require(['math','purl','ua-parser','metrics-impl'],function(math,purl,UAParser,m
         sid:"",
         cid:"",
         uid:"",
-        referrer: document.referrer,
-        env:{},
-        url:{},
 
         init: function(){
             this.env = new UAParser().getResult();
             this.env.screen = window.screen.width + "x" + window.screen.height;
+            this.env.tz = new Date().getTimezoneOffset() / 60;
             var parsedUrl = purl(window.location.href);
+
             this.url = {
                 src: parsedUrl.attr("source"),
                 https: !!(parsedUrl.attr("protocol") == 'https'),
@@ -56,9 +55,24 @@ require(['math','purl','ua-parser','metrics-impl'],function(math,purl,UAParser,m
                 query: parsedUrl.param() || {},
                 hash: parsedUrl.attr("anchor") || ""
             };
+
+            var referrer = document.referrer;
+            if(typeof(referrer) !== 'undefined' && referrer !== ""){
+                parsedUrl = purl(referrer);
+                this.refurl = {
+                    src: parsedUrl.attr("source"),
+                    https: !!(parsedUrl.attr("protocol") == 'https'),
+                    domain: parsedUrl.attr("host"),
+                    port: parsedUrl.attr("port") || "",
+                    path: parsedUrl.attr("path") || "",
+                    query: parsedUrl.param() || {},
+                    hash: parsedUrl.attr("anchor") || ""
+                };
+            }
+
         },
 
-        getVisitor: function(){
+        getUser: function(){
             return {
                 uid: this.uid || "",
                 cid: this.cid || "",
@@ -66,18 +80,25 @@ require(['math','purl','ua-parser','metrics-impl'],function(math,purl,UAParser,m
             };
         },
 
+
         record: function (name,data) {
 
             var event = {
                 url : this.url,
-                ref : this.referrer || "Direct",
-                vid : this.getVisitor(),
+                usr : this.getUser(),
                 env : this.env,
                 data: data
             }
 
-            metricsImpl.record(name,event);
+            if(data){
+                event.data = data;
+            }
 
+            if(this.refurl){
+                event.ref = this.refurl;
+            }
+
+            metricsImpl.record(name,event);
 
         }
     };
@@ -85,7 +106,6 @@ require(['math','purl','ua-parser','metrics-impl'],function(math,purl,UAParser,m
 
     cookie = cookies["cid"];
     if(cookie == undefined){
-        console.log("new cid");
         Metrics.cid = math.uuid();
         writeCookie("cid", Metrics.cid,clientExpiry);
     }else{
@@ -94,17 +114,15 @@ require(['math','purl','ua-parser','metrics-impl'],function(math,purl,UAParser,m
 
     cookie = cookies["sid"];
     if(cookie == undefined){
-        console.log("new sid");
         Metrics.sid = math.uuid();
     }else{
-        console.log("renew sid expiry");
         Metrics.sid = cookie;
     }
     writeCookie("sid", Metrics.sid,sessionExpiry);
 
     var vs = cookies["vs"];
     if(vs == undefined){
-        Metrics.record('Visited Site',{});
+        Metrics.record('Visited Site');
         writeCookie("vs", "1",sessionExpiry);
     }
 
