@@ -10,7 +10,7 @@ module.exports = function (grunt) {
                 options: {
                     baseUrl: './app/js/src',
                     name: 'metrics',
-                    out: './app/js/metrics-min.js',
+                    out: './app/js/metrics.js',
 
                     shim: {
                         math: {

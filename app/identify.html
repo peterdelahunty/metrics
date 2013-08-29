@@ -9,6 +9,7 @@
     <script type="text/javascript">
         require(['js/src/config'], function (config) {
             require(['metrics'],function (metrics){
+                metrics.identify("AAAA-BBBB-CCCC-DDDD");
                 metrics.recordPageView();
             });
         });
@@ -31,7 +32,7 @@
 <body>
 
 <p> working fine</p>
-<a href="identify.html">Identify user</a>
+<a href="app.html">View app</a>
 
 </body>
 </html>
