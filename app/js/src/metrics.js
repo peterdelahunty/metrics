@@ -49,7 +49,7 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
         sidCookie,
         cidCookie,
         uidCookie,
-        sessionCookie,
+        visitCookie,
         domain = getDomain(),
         sessionExpiry = getSessionExpiry(),
         clientExpiry = getClientExpiry(),
@@ -57,7 +57,15 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
         MetricsEventNames = {
             VISITED_SITE: 'visited site',
             NEW_VISITOR: 'new visitor',
-            RETURNING_VISITOR: 'returning visitor'
+            RETURNING_VISITOR: 'returning visitor',
+            PAGE_VIEW: 'page view'
+        },
+
+        MetricsCookieNames = {
+            USER_COOKIE_NAME: 'm_uid',
+            CLIENT_COOKIE_NAME: 'm_cid',
+            SESSION_COOKIE_NAME: 'm_sid',
+            VISITOR_COOKIE_NAME: 'm_vs'
         },
 
         Metrics = {
@@ -74,7 +82,7 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
                 this.url = {
                     src: parsedUrl.attr("source"),
                     pro: parsedUrl.attr("protocol"),
-                    dom: parsedUrl.attr("host"),
+                    domain: parsedUrl.attr("host"),
                     port: parsedUrl.attr("port") || "",
                     path: parsedUrl.attr("path") || "",
                     query: parsedUrl.param() || {},
@@ -87,7 +95,7 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
                     this.refurl = {
                         src: parsedUrl.attr("source"),
                         pro: parsedUrl.attr("protocol"),
-                        dom: parsedUrl.attr("host"),
+                        domain: parsedUrl.attr("host"),
                         port: parsedUrl.attr("port") || "",
                         path: parsedUrl.attr("path") || "",
                         query: parsedUrl.param() || {},
@@ -107,18 +115,18 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
 
             identify: function (uid) {
                 Metrics.uid = uid;
-                writeCookie("m_uid", Metrics.uid, sessionExpiry, domain);
+                writeCookie(MetricsCookieNames.USER_COOKIE_NAME, Metrics.uid, sessionExpiry, domain);
             },
 
             unidentify: function () {
                 var expireTime = new Date()
                 expireTime.setSeconds(expireTime.getSeconds() + 10);
                 Metrics.uid = "";
-                writeCookie("m_uid", "", expireTime, domain);
+                writeCookie(MetricsCookieNames.USER_COOKIE_NAME, "", expireTime, domain);
             },
 
             recordPageView: function (data) {
-                this.record("page view", data);
+                this.record(MetricsEventNames.PAGE_VIEW, data);
             },
 
             record: function (name, data) {
@@ -144,20 +152,13 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
         };
     Metrics.init();
 
-    cidCookie = cookies["m_cid"];
-    sidCookie = cookies["m_sid"];
-    uidCookie = cookies["m_uid"];
-    sessionCookie = cookies["m_vs"];
+    cidCookie = cookies[MetricsCookieNames.CLIENT_COOKIE_NAME];
+    sidCookie = cookies[MetricsCookieNames.SESSION_COOKIE_NAME];
+    uidCookie = cookies[MetricsCookieNames.USER_COOKIE_NAME];
+    visitCookie = cookies[MetricsEventNames.VISITED_SITE];
 
-    if (cidCookie == undefined) {
-        Metrics.cid = math.uuid();
-        writeCookie("m_cid", Metrics.cid, clientExpiry, domain);
-        Metrics.record(MetricsEventNames.NEW_VISITOR);
-    } else {
-        Metrics.cid = cidCookie;
-        if (sessionCookie == undefined) {
-            Metrics.record(MetricsEventNames.RETURNING_VISITOR);
-        }
+    if (uidCookie !== undefined) {
+        Metrics.uid = uidCookie;
     }
 
     if (sidCookie == undefined) {
@@ -165,15 +166,22 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
     } else {
         Metrics.sid = sidCookie;
     }
-    writeCookie("m_sid", Metrics.sid, sessionExpiry, domain);
+    writeCookie(MetricsCookieNames.SESSION_COOKIE_NAME, Metrics.sid, sessionExpiry, domain);
 
-    if (sessionCookie == undefined) {
-        Metrics.record(MetricsEventNames.VISITED_SITE);
-        writeCookie("m_vs", "1", sessionExpiry, domain);
+    if (cidCookie == undefined) {
+        Metrics.cid = math.uuid();
+        writeCookie(MetricsCookieNames.CLIENT_COOKIE_NAME, Metrics.cid, clientExpiry, domain);
+        Metrics.record(MetricsEventNames.NEW_VISITOR);
+    } else {
+        Metrics.cid = cidCookie;
+        if (visitCookie == undefined) {
+            Metrics.record(MetricsEventNames.RETURNING_VISITOR);
+        }
     }
 
-    if (uidCookie !== undefined) {
-        Metrics.uid = uidCookie;
+    if (visitCookie == undefined) {
+        Metrics.record(MetricsEventNames.VISITED_SITE);
+        writeCookie(MetricsCookieNames.VISITOR_COOKIE_NAME, "1", sessionExpiry, domain);
     }
 
     window.Metrics = Metrics;
