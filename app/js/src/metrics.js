@@ -4,7 +4,8 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
     var MODULE = (function () {
 
         function readCookies() {
-            var i, nv, list = document.cookie.split('; '), cookies = {};
+            var cookieStr = document.cookie,list = cookieStr.split('; '),i, nv,  cookies = {};
+
             for (i = list.length - 1; i >= 0; i--) {
                 nv = list[i].split('=');
                 if (nv.length > 1) {
@@ -19,7 +20,7 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
         function writeCookie(key, value, expires, domain) {
             //var c = [encodeURIComponent(key),"=",encodeURIComponent(value),"; domain=" + domain,"; expires=" + expires.toUTCString(),"; path=/"].join('');
             var c = [encodeURIComponent(key), "=", encodeURIComponent(value), "; expires=" + expires.toUTCString(), "; path=/"]
-            if (domain) {
+            if (domain !== undefined) {
                 c.push("; domain=" + domain)
             }
             c = c.join('');
@@ -55,7 +56,7 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
             };
 
             var referrer = document.referrer;
-            if (typeof(referrer) !== 'undefined' && referrer !== "") {
+            if (referrer !== undefined && referrer != "") {
                 parsedUrl = purl(referrer);
                 obj.ref = {
                     src: parsedUrl.attr("source"),
@@ -134,7 +135,7 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
                 event.data = data;
             }
 
-            if (this.refurl) {
+            if (urlObj.ref !== undefined) {
                 event.ref = urlObj.ref;
             }
 
@@ -155,36 +156,27 @@ define(['math', 'purl', 'ua-parser', 'metrics-impl'], function (math, purl, UAPa
                 uid = uidCookie;
             }
 
-            if (sidCookie == undefined) {
+            if (sidCookie === undefined) {
                 sid = math.uuid();
             } else {
                 sid = sidCookie;
             }
             writeCookie(MetricsCookieNames.SESSION_COOKIE_NAME, sid, sessionExpiry, domain);
-            if (console) {
-                console.log("writing session cookie");
-            }
 
-            if (cidCookie == undefined) {
+            if (cidCookie === undefined) {
                 cid = math.uuid();
                 writeCookie(MetricsCookieNames.CLIENT_COOKIE_NAME, cid, clientExpiry, domain);
                 this.record(MetricsEventNames.NEW_VISITOR);
-                if (console) {
-                    console.log("writing client cookie");
-                }
             } else {
                 cid = cidCookie;
-                if (visitCookie == undefined) {
+                if (visitCookie === undefined) {
                     this.record(MetricsEventNames.RETURNING_VISITOR);
                 }
             }
 
-            if (visitCookie == undefined) {
+            if (visitCookie === undefined) {
                 this.record(MetricsEventNames.VISITED_SITE);
                 writeCookie(MetricsCookieNames.VISITOR_COOKIE_NAME, "1", sessionExpiry, domain);
-                if (console) {
-                    console.log("writing visit cookie");
-                }
             }
 
         };
